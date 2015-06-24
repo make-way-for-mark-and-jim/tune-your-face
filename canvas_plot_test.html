@@ -29,28 +29,28 @@
       var height = 300;
       var width  = 400;
 
-      var canvas = document.getElementById('canvas');
-      var ctx    = canvas.getContext('2d');
-      var penSize = 3;
+      var canvas  = document.getElementById('canvas');
+      var ctx     = canvas.getContext('2d');
+      var penSize = 2;
+
+      var history         = [];
+      var historySize     = 256; //Power of 2 so it looks smart
+      var historyPointer  = 0;
+      var penX            = 3/4 * width;
 
       function render(time) {
 
         var t_sec = time / 1000;
-
-        var x = calcX(t_sec);
         var y = calcY(t_sec);
+        var index = historyPointer++ % historySize;
+        history[index] = y;
 
         ctx.fillStyle = 'rgb(200, 60, 60)';
-        ctx.beginPath();
-        ctx.arc(x, y, penSize, 0, 2 * Math.PI, true);
-        ctx.closePath();
-        ctx.fill();
+        ctx.clearRect(0, 0, width, height);
 
-      }
+        drawXAxis();
+        drawWave(index);
 
-      function calcX(t) {
-        var rate = width / 10; //pixels per second
-        return t * rate;
       }
 
       function calcY(t) {
@@ -60,7 +60,36 @@
         var y = A * Math.sin(w * t) + height / 2;
 
         return y;
+      }
 
+      function drawWave(index) {
+        for(var i = 0; i < historySize; i++) {
+
+            var yIndex = (index - i) % historySize;
+            if (yIndex < 0) {
+              yIndex = historySize + yIndex;
+            }
+
+            var _x = penX * (1 - i / historySize);
+            var _y = history[yIndex];
+
+            ctx.beginPath();
+            ctx.arc(_x, _y, penSize, 0, 2 * Math.PI, true);
+            ctx.closePath();
+            ctx.fill();
+        }
+      }
+
+      function drawXAxis() {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(0, 0, 0, .4)';
+
+        // Add 0.5 to each y value to get a truly 1px thick line
+        // So dumb.
+        ctx.moveTo(0, height/2 + .5);
+        ctx.lineTo(width, height/2 + .5);
+        ctx.stroke();
+        ctx.closePath();
       }
 
       // Get this ball of wax rolling and extra waxy
