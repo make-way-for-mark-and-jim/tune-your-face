@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Canvas Plot Test</title>
+    <style type='text/css'>
+      html, body {
+        padding-left: 25px;
+        background-color: #222;
+        color: #EEE;
+        font-family: sans-serif;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      canvas {
+        background-color: #CCC;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Plot Test</h1>
+    <canvas id="canvas" width="400" height="300"></canvas>
+
+    <script type="text/javascript">
+
+      var height = 300;
+      var width  = 400;
+
+      var canvas = document.getElementById('canvas');
+      var ctx    = canvas.getContext('2d');
+      var penSize = 3;
+
+      function render(time) {
+
+        var t_sec = time / 1000;
+
+        var x = calcX(t_sec);
+        var y = calcY(t_sec);
+
+        ctx.fillStyle = 'rgb(200, 60, 60)';
+        ctx.beginPath();
+        ctx.arc(x, y, penSize, 0, 2 * Math.PI, true);
+        ctx.closePath();
+        ctx.fill();
+
+      }
+
+      function calcX(t) {
+        var rate = width / 10; //pixels per second
+        return t * rate;
+      }
+
+      function calcY(t) {
+        var f = .5; //Hz
+        var w = 2 * Math.PI * f;
+        var A = 50;
+        var y = A * Math.sin(w * t) + height / 2;
+
+        return y;
+
+      }
+
+      // Get this ball of wax rolling and extra waxy
+      (function animationLoop(time) {
+        window.requestAnimationFrame(animationLoop);
+        render(time);
+      })();
+
+    </script>
+  </body>
+</html>
